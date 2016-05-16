@@ -92,7 +92,7 @@ install_diff_so_fancy(){
     sudo npm install -g diff-so-fancy
   fi
 
-  PAGER=$(git config --get core.pager)
+  local PAGER=$(git config --get core.pager)
   if [[ ! -z ${PAGER} ]]; then
     return 0
   fi
@@ -103,6 +103,27 @@ install_diff_so_fancy(){
   git config --global color.diff-highlight.oldHighlight "red bold 52"
   git config --global color.diff-highlight.newNormal "green bold"
   git config --global color.diff-highlight.newHighlight "green bold 22"
+}
+
+install_golang(){
+  local GO_TAR="go${GOLANG_VERSION}.linux-amd64.tar.gz"
+  local flag=true
+  which go > /dev/null 2>&1
+
+  if [[ $? -eq 0 ]]; then
+    flag=false
+  fi
+
+  if ! ${flag}; then
+    local PREVIOUS_GOLANG_VERSION=$(go version | awk '{print $3}' | cut -d 'o' -f2)
+  fi
+
+  if [[ ${GOLANG_VERSION} != ${PREVIOUS_GOLANG_VERSION} ]]; then
+    wget https://storage.googleapis.com/golang/${GO_TAR}
+    sudo tar -C /usr/local -xzf ${GO_TAR}
+  fi
+
+  rm -f ${GO_TAR}
 }
 
 #
