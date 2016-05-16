@@ -55,11 +55,11 @@ supported_dists(){
 #
 # Set up Git username, Mail and Credential cache
 #
-config(){
+config_settings(){
   git config --global user.name "${FULL_NAME}"
   git config --global user.email "${PERSONAL_EMAIL}"
   git config --global credential.helper 'cache --timeout=3600'
-  git config --global alias.commit "commit -S"
+  git config --global --add alias.commit "commit -S"
 }
 
 check_docker(){
@@ -72,6 +72,38 @@ check_docker(){
   fi
 }
 
+#
+# Install NPM
+#
+install_0_npm(){
+  which npm > /dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    return 0
+  fi
+  notice "Installing NPM..."
+  sudo apt-get update
+  sudo apt-get install npm
+}
+
+install_diff_so_fancy(){
+  which diff-so-fancy > /dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
+    notice "Installing diff-so-fancy for git..."
+    sudo npm install -g diff-so-fancy
+  fi
+
+  PAGER=$(git config --get core.pager)
+  if [[ ! -z ${PAGER} ]]; then
+    return 0
+  fi
+
+  notice "Setting default pager to \"diff-so-fancy\""
+  git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
+  git config --global color.diff-highlight.oldNormal "red bold"
+  git config --global color.diff-highlight.oldHighlight "red bold 52"
+  git config --global color.diff-highlight.newNormal "green bold"
+  git config --global color.diff-highlight.newHighlight "green bold 22"
+}
 
 #
 # Install docker & docker-compose
@@ -168,15 +200,15 @@ install_zsh(){
   if [[ $? -eq 0 ]]; then
     return 0
   fi
-
+  notice "Installing zsh shell..."
   sudo apt-get update
   sudo apt-get install zsh
   sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
-  grep robbyrussell $HOME/.zshrc
+  grep robbyrussell ${HOME}/.zshrc
 
   if [[ $? -eq 0 ]]; then
-    sed -i 's/robbyrussell/agnoster/' $HOME/.zshrc
+    sed -i 's/robbyrussell/agnoster/' ${HOME}/.zshrc
   fi
 }
 
@@ -184,15 +216,29 @@ install_zsh(){
 # Install patched fonts
 #
 install_fonts(){
-  FONTS=$(find $HOME/.local/share/fonts -name "*Powerline.ttf")
+  local FONTS=$(find ${HOME}/.local/share/fonts -name "*Powerline.ttf")
 
   if [[ ! -z ${FONTS} ]]; then
     return 0
   fi
 
+  notice "Installing patched fonts..."
   git clone https://github.com/powerline/fonts.git
   ./fonts/install.sh
   rm -rf fonts
+}
+
+#
+# Copy local configuration files for software
+#
+copy_local_configurations(){
+  local DEST="${HOME}/.config"
+  local SOURCE="$(pwd)/configs"
+  local CONFIGS=$(ls ${SOURCE})
+
+  for CONFIG in ${CONFIGS}; do
+    cp -rf ${SOURCE}/${CONFIG} ${DEST}/${CONFIG}
+  done
 }
 
 ####### MAIN EXECUTION BLOCK #######

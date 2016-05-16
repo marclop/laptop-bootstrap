@@ -1,0 +1,24 @@
+[global_config]
+  enabled_plugins = LaunchpadCodeURLHandler, APTURLHandler, LaunchpadBugURLHandler
+[keybindings]
+[profiles]
+  [[default]]
+    use_system_font = False
+    copy_on_selection = True
+    background_darkness = 0.95
+    scrollback_lines = 50000
+    background_type = transparent
+    background_image = None
+    foreground_color = "#b9bdbe"
+    font = Meslo LG L DZ for Powerline 10
+    background_color = "#002b36"
+[layouts]
+  [[default]]
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+      profile = default
+    [[[window0]]]
+      type = Window
+      parent = ""
+[plugins]
