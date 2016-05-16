@@ -59,6 +59,7 @@ config(){
   git config --global user.name "${FULL_NAME}"
   git config --global user.email "${PERSONAL_EMAIL}"
   git config --global credential.helper 'cache --timeout=3600'
+  git config --global alias.commit commit -S
 }
 
 check_docker(){
@@ -155,6 +156,43 @@ create_alias(){
     ((count++))
   done
   alias >> ${ALIAS_FILE}
+}
+
+#
+# Install zsh and robbyrussell
+#
+install_zsh(){
+  local ZSH_THEME="agnoster"
+  which zsh > /dev/null 2>&1
+
+  if [[ $? -eq 0 ]]; then
+    return 0
+  fi
+
+  sudo apt-get update
+  sudo apt-get install zsh
+  sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+  grep robbyrussell $HOME/.zshrc
+
+  if [[ $? -eq 0 ]]; then
+    sed -i 's/robbyrussell/agnoster/' $HOME/.zshrc
+  fi
+}
+
+#
+# Install patched fonts
+#
+install_fonts(){
+  FONTS=$(find $HOME/.local/share/fonts -name "*Powerline.ttf")
+
+  if [[ ! -z ${FONTS} ]]; then
+    return 0
+  fi
+
+  git clone https://github.com/powerline/fonts.git
+  ./fonts/install.sh
+  rm -rf fonts
 }
 
 ####### MAIN EXECUTION BLOCK #######
