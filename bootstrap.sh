@@ -59,7 +59,7 @@ config_settings(){
   git config --global user.name "${FULL_NAME}"
   git config --global user.email "${PERSONAL_EMAIL}"
   git config --global credential.helper 'cache --timeout=3600'
-  git config --global --add alias.commit "commit -S"
+  git config --global --add alias.commit "commit -s -S"
 }
 
 check_docker(){
